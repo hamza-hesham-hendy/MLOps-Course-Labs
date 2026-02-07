@@ -20,6 +20,7 @@ from sklearn.metrics import (
 )
 
 ### Import MLflow
+import mlflow
 
 def rebalance(data):
     """
