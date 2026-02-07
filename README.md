@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ````md
 # Bank Customer Churn Prediction (MLOps)
 
@@ -135,3 +136,6 @@ MIT
 
 ```
 ```
+=======
+
+>>>>>>> e78e8ca8a3aae2a2f3796b1b2d230f056da88a62
