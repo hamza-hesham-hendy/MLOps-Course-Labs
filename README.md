@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 ````md
 # Bank Customer Churn Prediction (MLOps)
 
