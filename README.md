@@ -1,117 +1,137 @@
-Bank Customer Churn Prediction
+````md
+# Bank Customer Churn Prediction (MLOps)
 
-A modular MLOps project for predicting bank customer churn using multiple machine learning models with MLflow tracking.
+This repository contains a modular Machine Learning pipeline designed to predict bank customer churn. It leverages **MLflow** for experiment tracking, model management, artifact logging, and performance comparison across multiple classifiers.
 
-Project Structure
+---
 
+## 📂 Project Structure
+
+```text
 MLOps-Course-Labs/
-├── README.md
-├── requirements.txt
+├── artifacts/                # Local storage for plots and pickled transformers
+│   ├── column_transformer.pkl
+│   └── confusion_matrix_*.png
 ├── dataset/
-│ └── Churn_Modelling.csv
-└── src/
-    ├── train.py # Main training script with MLflow logging
-    ├── model_config.py # (Optional / future extension)
+│   └── Churn_Modelling.csv   # Raw customer dataset
+├── src/
+│   ├── train.py              # Baseline single-model training (Logistic Regression)
+│   └── multimodel_train.py   # Multi-model experiment with nested MLflow runs
+├── mlruns/                   # MLflow local tracking directory
+├── model_comparison.csv      # Auto-generated CSV comparing all model metrics
+├── requirements.txt          # Python dependencies
+└── README.md
+````
 
-Features
+---
 
-Multi-Model Training: Train and compare multiple ML models in a single experiment
+## 🚀 Features
 
-MLflow Integration: Full experiment tracking with metrics, parameters, and artifacts
+* **Automated Preprocessing**
 
-Data Preprocessing Pipeline:
+  * Handles class imbalance via downsampling
+  * Uses `ColumnTransformer` for scaling numerical features and one-hot encoding categorical features
 
-Class rebalancing using downsampling
+* **Experiment Tracking**
 
-Feature scaling with StandardScaler
+  * Logs parameters, accuracy, precision, recall, and F1-score using MLflow
 
-One-hot encoding for categorical variables
+* **Model Signatures**
 
-Automated Comparison: Generates a summary CSV with model performance rankings
+  * Stores input/output schemas in MLflow for reproducibility and deployment readiness
 
-Available Models
-Model	Description
-Logistic Regression	Linear classifier with regularization
-Random Forest	Ensemble of decision trees
-Decision Tree	Tree-based classifier
-Installation
+* **Nested Runs**
+
+  * `multimodel_train.py` organizes multiple models under a single parent experiment
+
+* **Automated Model Comparison**
+
+  * Generates `model_comparison.csv` ranked by F1-score
+
+---
+
+## 🛠️ Installation
+
+Navigate to the project directory and install dependencies:
+
+```bash
 pip install -r requirements.txt
+```
 
-Usage
-1. Start MLflow Server
+---
+
+## 📈 Usage
+
+### 1. Start MLflow Tracking Server
+
+In a separate terminal:
+
+```bash
 mlflow ui --port 5000
+```
 
-2. Run Training
-cd src
-python train.py
+### 2. Run Experiments
 
-3. View Results
+Train the baseline Logistic Regression model:
 
-Open the following URL in your browser:
+```bash
+python src/train.py
+```
 
+Run the full multi-model comparison (Logistic Regression, Random Forest, Decision Tree):
+
+```bash
+python src/multimodel_train.py
+```
+
+### 3. Analyze Results
+
+Open the MLflow UI in your browser:
+
+```
 http://localhost:5000
+```
 
-Adding New Models
+From the UI, you can:
 
-New models can be added directly in train.py by:
+* Compare metrics across models
+* Inspect confusion matrix plots under **Artifacts**
+* Download the `column_transformer.pkl` for inference
+* Review `model_comparison.csv` for final rankings
 
-Creating a new training function
+---
 
-Adding the model to the models list
+## 📊 Models & Metrics
 
-Logging parameters and metrics through MLflow
+**Models Included**
 
-This design allows easy extension without modifying the core pipeline.
+* Logistic Regression
+* Random Forest
+* Decision Tree
 
-Metrics Tracked
+**Metrics Tracked**
 
-Accuracy: Overall prediction accuracy
+* Accuracy
+* Precision
+* Recall
+* F1-Score (primary metric for model ranking)
 
-Precision: Positive predictive value
+---
 
-Recall: True positive rate
+## 📦 Requirements
 
-F1 Score: Harmonic mean of precision and recall
+* Python 3.8+
+* pandas
+* scikit-learn
+* mlflow
+* matplotlib
+* joblib
 
-Artifacts
+---
 
-Each model run logs:
-
-Trained model (MLflow sklearn format)
-
-Column transformer (column_transformer.pkl)
-
-Confusion matrix plot (.png)
-
-Additionally, the parent run logs:
-
-model_comparison.csv summarizing all models sorted by F1 score
-
-Configuration
-
-Model logic and hyperparameters are defined in src/train.py.
-You can modify this file to:
-
-Adjust hyperparameters
-
-Enable or disable models
-
-Add new classifiers
-
-Requirements
-
-Python 3.8+
-
-scikit-learn
-
-pandas
-
-matplotlib
-
-mlflow
-
-joblib
-
-License
+## 📄 License
 
 MIT
+
+```
+```
