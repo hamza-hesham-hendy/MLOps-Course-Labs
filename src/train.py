@@ -21,6 +21,9 @@ from sklearn.metrics import (
 
 ### Import MLflow
 import mlflow
+import pickle
+import os
+from mlflow.models.signature import infer_signature
 
 def rebalance(data):
     """
@@ -108,6 +111,12 @@ def preprocess(df):
     X_test = pd.DataFrame(X_test, columns=col_transf.get_feature_names_out())
 
     # Log the transformer as an artifact
+    os.makedirs("artifacts", exist_ok=True)
+    transformer_path = "artifacts/column_transformer.pkl"
+    with open(transformer_path, "wb") as f:
+        pickle.dump(col_transf, f)
+    if mlflow.active_run() is not None:
+        mlflow.log_artifact(transformer_path, artifact_path="preprocess")
 
     return col_transf, X_train, X_test, y_train, y_test
 
@@ -128,48 +137,58 @@ def train(X_train, y_train):
 
     ### Log the model with the input and output schema
     # Infer signature (input and output schema)
-
+    signature = infer_signature(X_train, log_reg.predict(X_train))
     # Log model
-
+    mlflow.sklearn.log_model(log_reg, "model", signature=signature,input_example=X_train.head(5))
     ### Log the data
+    dataset = mlflow.data.from_pandas(X_train,name="train_data")
+    mlflow.log_input(dataset, context="training")
 
     return log_reg
 
 
 def main():
     ### Set the tracking URI for MLflow
-
+    mlflow.set_tracking_uri("http://localhost:5000")
     ### Set the experiment name
-
+    mlflow.set_experiment("Bank_Churn_Prediction")
 
     ### Start a new run and leave all the main function code as part of the experiment
+    with mlflow.start_run():
+        df = pd.read_csv("dataset/Churn_Modelling.csv")
+        col_transf, X_train, X_test, y_train, y_test = preprocess(df)
 
-    df = pd.read_csv("data/Churn_Modelling.csv")
-    col_transf, X_train, X_test, y_train, y_test = preprocess(df)
+        ### Log the max_iter parameter
+        mlflow.log_param("max_iter", 1000)
 
-    ### Log the max_iter parameter
+        model = train(X_train, y_train)
 
-    model = train(X_train, y_train)
+        
+        y_pred = model.predict(X_test)
 
-    
-    y_pred = model.predict(X_test)
+        ### Log metrics after calculating them
+        mlflow.log_metric("accuracy", accuracy_score(y_test, y_pred))
+        mlflow.log_metric("precision", precision_score(y_test, y_pred))
+        mlflow.log_metric("recall", recall_score(y_test, y_pred))
+        mlflow.log_metric("f1", f1_score(y_test, y_pred))
 
-    ### Log metrics after calculating them
+        ### Log tag
+        mlflow.set_tag("version", "1.0.0")
+        mlflow.set_tag("model", "LogisticRegression")
 
 
-    ### Log tag
-
-
-    
-    conf_mat = confusion_matrix(y_test, y_pred, labels=model.classes_)
-    conf_mat_disp = ConfusionMatrixDisplay(
-        confusion_matrix=conf_mat, display_labels=model.classes_
-    )
-    conf_mat_disp.plot()
-    
-    # Log the image as an artifact in MLflow
-    
-    plt.show()
+        
+        conf_mat = confusion_matrix(y_test, y_pred, labels=model.classes_)
+        conf_mat_disp = ConfusionMatrixDisplay(
+            confusion_matrix=conf_mat, display_labels=model.classes_
+        )
+        conf_mat_disp.plot()
+        
+        # Log the image as an artifact in MLflow
+        plot_path = "artifacts/confusion_matrix.png"
+        plt.savefig(plot_path)
+        mlflow.log_artifact(plot_path)
+        plt.show()
 
 
 if __name__ == "__main__":
