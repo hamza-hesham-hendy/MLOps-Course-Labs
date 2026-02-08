@@ -1,58 +1,82 @@
-````md
-# Bank Customer Churn Prediction (MLOps)
-
-This repository contains a modular Machine Learning pipeline designed to predict bank customer churn. It leverages **MLflow** for experiment tracking, model management, artifact logging, and performance comparison across multiple classifiers.
+# 🏦 Bank Customer Churn Prediction (MLOps)
+A modular **end-to-end MLOps machine learning pipeline** for predicting bank customer churn.  
+The project leverages **MLflow** for experiment tracking, model comparison, artifact logging, and reproducibility.
 
 ---
 
-## 📂 Project Structure
+## 📌 Overview
 
-```text
+This repository demonstrates best practices in applied MLOps, including:
+- Automated preprocessing
+- Multiple model experimentation
+- Centralized experiment tracking
+- Reproducible training pipelines
+- Metric-driven model selection
+
+- ---
+The primary goal is to **compare multiple classifiers** and identify the best churn prediction model using **F1-score**.
+- ---
+
+## 📂 Project Structure
+````md
 MLOps-Course-Labs/
-├── artifacts/                # Local storage for plots and pickled transformers
+├── artifacts/                # Saved plots and serialized transformers
 │   ├── column_transformer.pkl
 │   └── confusion_matrix_*.png
 ├── dataset/
-│   └── Churn_Modelling.csv   # Raw customer dataset
+│   └── Churn_Modelling.csv   # Raw customer data
 ├── src/
-│   ├── train.py              # Baseline single-model training (Logistic Regression)
-│   └── multimodel_train.py   # Multi-model experiment with nested MLflow runs
-├── mlruns/                   # MLflow local tracking directory
-├── model_comparison.csv      # Auto-generated CSV comparing all model metrics
-├── requirements.txt          # Python dependencies
+│   ├── train.py              # Baseline single-model training
+│   └── multimodel_train.py   # Multi-model training with nested MLflow runs
+├── mlruns/                   # Local MLflow tracking directory
+├── model_comparison.csv      # Auto-generated model ranking (by F1-score)
+├── requirements.txt          # Project dependencies
 └── README.md
 ````
 
 ---
 
-## 🚀 Features
+## ✨ Key Features
 
-* **Automated Preprocessing**
+### 🔄 Automated Preprocessing
 
-  * Handles class imbalance via downsampling
-  * Uses `ColumnTransformer` for scaling numerical features and one-hot encoding categorical features
+* Handles class imbalance via **downsampling**
+* Uses `ColumnTransformer` for:
 
-* **Experiment Tracking**
+  * Numerical feature scaling
+  * Categorical feature one-hot encoding
 
-  * Logs parameters, accuracy, precision, recall, and F1-score using MLflow
+### 📊 Experiment Tracking with MLflow
 
-* **Model Signatures**
+* Logs:
 
-  * Stores input/output schemas in MLflow for reproducibility and deployment readiness
+  * Model parameters
+  * Accuracy, Precision, Recall, and F1-score
+* Stores:
 
-* **Nested Runs**
+  * Confusion matrix plots
+  * Preprocessing pipelines
+  * Model signatures (input/output schema)
 
-  * `multimodel_train.py` organizes multiple models under a single parent experiment
+### 🧪 Multi-Model Experiments
 
-* **Automated Model Comparison**
+* `multimodel_train.py` runs:
 
-  * Generates `model_comparison.csv` ranked by F1-score
+  * Logistic Regression
+  * Random Forest
+  * Decision Tree
+* Uses **nested MLflow runs** under a single experiment
+
+### 📈 Automated Model Comparison
+
+* Generates `model_comparison.csv`
+* Ranks all models by **F1-score** (primary metric)
 
 ---
 
 ## 🛠️ Installation
 
-Navigate to the project directory and install dependencies:
+Clone the repository and install dependencies:
 
 ```bash
 pip install -r requirements.txt
@@ -60,17 +84,23 @@ pip install -r requirements.txt
 
 ---
 
-## 📈 Usage
+## 🚀 Usage
 
-### 1. Start MLflow Tracking Server
-
-In a separate terminal:
+### 1️⃣ Start the MLflow Tracking Server
 
 ```bash
 mlflow ui --port 5000
 ```
 
-### 2. Run Experiments
+Then open:
+
+```
+http://localhost:5000
+```
+
+---
+
+### 2️⃣ Run Model Training
 
 Train the baseline Logistic Regression model:
 
@@ -78,43 +108,40 @@ Train the baseline Logistic Regression model:
 python src/train.py
 ```
 
-Run the full multi-model comparison (Logistic Regression, Random Forest, Decision Tree):
+Run the full multi-model experiment:
 
 ```bash
 python src/multimodel_train.py
 ```
 
-### 3. Analyze Results
+---
 
-Open the MLflow UI in your browser:
+### 3️⃣ Analyze Results
 
-```
-http://localhost:5000
-```
+From the MLflow UI, you can:
 
-From the UI, you can:
-
-* Compare metrics across models
-* Inspect confusion matrix plots under **Artifacts**
-* Download the `column_transformer.pkl` for inference
+* Compare model metrics across runs
+* View confusion matrices under **Artifacts**
+* Inspect model parameters and signatures
+* Download the trained preprocessing pipeline
 * Review `model_comparison.csv` for final rankings
 
 ---
 
 ## 📊 Models & Metrics
 
-**Models Included**
+### Models Evaluated
 
 * Logistic Regression
 * Random Forest
 * Decision Tree
 
-**Metrics Tracked**
+### Metrics Tracked
 
 * Accuracy
 * Precision
 * Recall
-* F1-Score (primary metric for model ranking)
+* **F1-Score** (used for final model selection)
 
 ---
 
@@ -132,7 +159,3 @@ From the UI, you can:
 ## 📄 License
 
 MIT
-
-```
-```
-=======
