@@ -20,17 +20,17 @@ logger = setup_logging()
 # Request Schema
 # ---------------------------------------------------------------------------
 class ChurnRequest(BaseModel):
-    standardscaler__CreditScore: float
-    standardscaler__Age: float
-    standardscaler__Tenure: float
-    standardscaler__Balance: float
-    standardscaler__NumOfProducts: float
-    standardscaler__HasCrCard: float
-    standardscaler__IsActiveMember: float
-    standardscaler__EstimatedSalary: float
-    onehotencoder__Geography_Germany: float
-    onehotencoder__Geography_Spain: float
-    onehotencoder__Gender_Male: float
+    credit_score: float
+    age: float
+    tenure: float
+    balance: float
+    num_of_products: float
+    has_credit_card: float
+    is_active_member: float
+    estimated_salary: float
+    geography_germany: float
+    geography_spain: float
+    gender_male: float
 
 
 # ---------------------------------------------------------------------------
@@ -52,19 +52,7 @@ def health() -> dict[str, str]:
 
 @post("/predict")
 def predict(data: ChurnRequest) -> dict[str, int]:
-    features = [
-        data.standardscaler__CreditScore,
-        data.standardscaler__Age,
-        data.standardscaler__Tenure,
-        data.standardscaler__Balance,
-        data.standardscaler__NumOfProducts,
-        data.standardscaler__HasCrCard,
-        data.standardscaler__IsActiveMember,
-        data.standardscaler__EstimatedSalary,
-        data.onehotencoder__Geography_Germany,
-        data.onehotencoder__Geography_Spain,
-        data.onehotencoder__Gender_Male,
-    ]
+    features = list(data.model_dump().values())
     prediction = predict_churn(features)
     logger.info("Predict request received: %s", features)
     logger.info("Predict result: %s", prediction)

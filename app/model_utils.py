@@ -29,6 +29,6 @@ def predict_churn(features: list[float]) -> int:
 
 
 if __name__ == "__main__":
-    sample = [0.0] * model.n_features_in_
+    sample = [0.0] * 11
     print(f"Input:      {sample}")
     print(f"Prediction: {predict_churn(sample)}")

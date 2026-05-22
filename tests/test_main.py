@@ -6,8 +6,12 @@ Run with:
     pytest tests/ -v --cov=app --cov=main --cov-report=term-missing
 """
 
+import importlib
+
+import pytest
 from litestar.testing import TestClient
 
+from app import model_utils as model_utils_module
 from app.model_utils import predict_churn
 from main import app
 
@@ -43,17 +47,17 @@ def test_get_health() -> None:
 
 def test_post_predict() -> None:
     payload = {
-        "standardscaler__CreditScore": 0.0,
-        "standardscaler__Age": 0.0,
-        "standardscaler__Tenure": 0.0,
-        "standardscaler__Balance": 0.0,
-        "standardscaler__NumOfProducts": 0.0,
-        "standardscaler__HasCrCard": 0.0,
-        "standardscaler__IsActiveMember": 0.0,
-        "standardscaler__EstimatedSalary": 0.0,
-        "onehotencoder__Geography_Germany": 0.0,
-        "onehotencoder__Geography_Spain": 0.0,
-        "onehotencoder__Gender_Male": 1.0,
+        "credit_score": 0.0,
+        "age": 0.0,
+        "tenure": 0.0,
+        "balance": 0.0,
+        "num_of_products": 0.0,
+        "has_credit_card": 0.0,
+        "is_active_member": 0.0,
+        "estimated_salary": 0.0,
+        "geography_germany": 0.0,
+        "geography_spain": 0.0,
+        "gender_male": 1.0,
     }
     with TestClient(app=app) as client:
         response = client.post("/predict", json=payload)
@@ -63,8 +67,18 @@ def test_post_predict() -> None:
 
 
 def test_post_predict_invalid_input_returns_400() -> None:
-    payload = {"standardscaler__CreditScore": "invalid"}
+    payload = {"credit_score": "invalid"}
     with TestClient(app=app) as client:
         response = client.post("/predict", json=payload)
 
     assert response.status_code == 400
+
+
+def test_model_load_missing_file_raises(monkeypatch) -> None:
+    def raise_missing_model(path):
+        raise FileNotFoundError("missing model")
+
+    monkeypatch.setattr(model_utils_module.joblib, "load", raise_missing_model)
+
+    with pytest.raises(FileNotFoundError, match="Model file not found"):
+        importlib.reload(model_utils_module)
